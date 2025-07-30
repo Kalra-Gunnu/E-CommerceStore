@@ -1,0 +1,83 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - ecommerce-net
+
+  user-service:
+    build:
+      context: ./backend/user-service
+      dockerfile: Dockerfile
+    env_file: ./backend/user-service/.env
+    ports:
+      - '3001:3001'
+    depends_on:
+      - mongo
+    networks:
+      - ecommerce-net
+
+  product-service:
+    build:
+      context: ./backend/product-service
+      dockerfile: Dockerfile
+    env_file: ./backend/product-service/.env
+    ports:
+      - '3002:3002'
+    depends_on:
+      - mongo
+    networks:
+      - ecommerce-net
+
+  cart-service:
+    build:
+      context: ./backend/cart-service
+      dockerfile: Dockerfile
+    env_file: ./backend/cart-service/.env
+    ports:
+      - '3003:3003'
+    depends_on:
+      - mongo
+      - product-service
+    networks:
+      - ecommerce-net
+
+  order-service:
+    build:
+      context: ./backend/order-service
+      dockerfile: Dockerfile
+    env_file: ./backend/order-service/.env
+    ports:
+      - '3004:3004'
+    depends_on:
+      - mongo
+      - cart-service
+      - product-service
+      - user-service
+    networks:
+      - ecommerce-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '3000:80'
+    depends_on:
+      - user-service
+      - product-service
+      - cart-service
+      - order-service
+    networks:
+      - ecommerce-net
+
+volumes:
+  mongo_data:
+
+networks:
+  ecommerce-net:
+    driver: bridge

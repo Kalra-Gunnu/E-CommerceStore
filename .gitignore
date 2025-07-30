@@ -205,3 +205,15 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# Node_modules/
+node_modules/
+
+# Package lock files
+package-lock.json
+
+# Secrets
+secret.yaml
+secrets/
+*.secret.yaml
